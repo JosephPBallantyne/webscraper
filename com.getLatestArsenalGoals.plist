@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.getLatestArsenalGoals</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Library/Frameworks/Python.framework/Versions/3.7/bin/python3</string>
+		<string>/Users/Joe/Documents/Python3Scripts/Git/ComputerScience101/webscraper</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Minute</key>
+		<integer>30</integer>
+		<key>Hour</key>
+		<integer>12</integer>
+	</dict>
+</dict>
+</plist>

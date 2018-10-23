@@ -18,25 +18,30 @@ A webscraper program that emails subscribed users a list of direct links to vide
 res = requests.get('http://arsenalist.com/').text
 soup = BeautifulSoup(res, 'lxml')
 
-# Check if any new highlights
-goals_date = soup.select('#content a')[0]['href']
-goals_date = goals_date.split('/')
-goals_date = '-'.join(goals_date[3:6])
-today = datetime.datetime.now().strftime("%Y-%m-%d")
+# Format yesterdays date
 yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
 yesterday_inbox = yesterday.strftime("%d-%b-%Y")
 yesterday = yesterday.strftime("%Y-%m-%d")
 
+# Get headline
+headline = soup.find('h1').text
+headline = headline.replace('Highlights', 'Goals')
+print(headline)
+
 # Get user data
 config = configparser.ConfigParser()
 config.read('goals_config.ini')
+print(config['check_new']['prev_headline'])
+
+# Read subscribers
 with open('goals_recipients.json') as f:
 	recipients = json.load(f)
 
-if (goals_date == yesterday):
-	# Get headline
-	headline = soup.find('h1').text
-	headline = headline.replace('Highlights', 'Goals')
+# Check if new highlights
+if (headline != config.get('check_new', 'prev_headline')):
+	config['check_new']['prev_headline'] = headline
+	with open('goals_config.ini', 'w') as configfile:
+		config.write(configfile)
 
 	# Setup csv writer
 	csv_file = open(headline + '.csv', 'w')
@@ -79,15 +84,14 @@ if (goals_date == yesterday):
 
 	# Send email notifications
 	msg_content = (''.join([str(a) + '\n' + b + '\n\n' for a,b in zip(title,direct_link)]))
-	msg_notes = ('''\nNote: Videos liable to copyright claims.\n\nIf your friends would like to subscribe, 
-they can email josephpballantyne+goals@gmail.com with the subject 'GOALS'. To unsubscribe, use subject 'STOP'.''')
+	msg_notes = ('''\nNote: Videos liable to copyright claims.\n\nTo subscribe, email josephpballantyne+goals@gmail.com with subject 'GOALS'. To unsubscribe, use subject 'STOP'.''')
 	conn = smtplib.SMTP('smtp.gmail.com', 587)
 	type(conn)
 	conn.ehlo()
 	conn.starttls()
 	conn.login(config.get('main', 'sender'), config.get('main', 'password'))
 	message = 'Subject: ' + headline + '\n' + headline + '\n\n' + msg_content + msg_notes
-	conn.sendmail(config.get('main', 'sender'), gr.recipients, message)
+	conn.sendmail(config.get('main', 'sender'), recipients, message)
 	conn.quit()
 
 # Maintain subscription list
