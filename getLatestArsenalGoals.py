@@ -12,14 +12,7 @@ import pyzmail
 import json # store user email addresses
 
 ('''
-A webscraper that produces a .csv file containing direct links to videos of the latest Arsenal goals.
-
-1. The website scraped is arsenalist.com.
-2. Check if highlights were uploaded today
-3. Headline, goal titles and goal video links are gathered from the site.
-4. Page hosting the goal video link is then scraped.
-5. Direct video links to the goals are then gathered from the original source.
-6. Print to .csv
+A webscraper program that emails subscribed users a list of direct links to videos of the latest Arsenal goals.
 	''')
 # Scrape arsenalist.com
 res = requests.get('http://arsenalist.com/').text
@@ -34,9 +27,9 @@ yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
 yesterday_inbox = yesterday.strftime("%d-%b-%Y")
 yesterday = yesterday.strftime("%Y-%m-%d")
 
+# Get user data
 config = configparser.ConfigParser()
 config.read('goals_config.ini')
-
 with open('goals_recipients.json') as f:
 	recipients = json.load(f)
 
@@ -86,9 +79,8 @@ if (goals_date == yesterday):
 
 	# Send email notifications
 	msg_content = (''.join([str(a) + '\n' + b + '\n\n' for a,b in zip(title,direct_link)]))
-	msg_notes = ('''\nNote: Videos liable to copyright claims.\n\nIf your friends would like to subscribe, they can email josephpballantyne+goals@gmail.com with the subject 'GOALS'. To unsubscribe, use subject 'STOP'.''')
-
-	
+	msg_notes = ('''\nNote: Videos liable to copyright claims.\n\nIf your friends would like to subscribe, 
+they can email josephpballantyne+goals@gmail.com with the subject 'GOALS'. To unsubscribe, use subject 'STOP'.''')
 	conn = smtplib.SMTP('smtp.gmail.com', 587)
 	type(conn)
 	conn.ehlo()
